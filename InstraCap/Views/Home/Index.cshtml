@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div id="area" style="position:relative;top:50%;left:50%">
+    <button id="start" class="btn btn-default">Started</button>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $("#start").on('click', function () {
+            var link = 'https://api.instagram.com/oauth/authorize/?client_id=98b9d5fba0b04b7eb1fd21682d7101b4&redirect_uri=http://localhost:54761/&response_type=code';
+            var link2 = 'https://instagram.com/oauth/authorize/?client_id=98b9d5fba0b04b7eb1fd21682d7101b4&redirect_uri=http://localhost:54761/&response_type=token';
+            window.location = link2;
+        });
+
+        $(document).ready(function () {
+            console.log(window.location);
+
+            if (!!window.location.hash)
+            {
+                window.location = '@Url.Action("Index", "Search", new { code = "_code" })'.replace('_code', window.location.hash).replace('#access_token=', '');
+            }
+        });
+    </script>
+}

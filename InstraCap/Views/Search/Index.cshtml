@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Search";
+}
+
+<div class="col-xs-6 col-md-6 col-lg-6 container">
+    <textarea id="caps" style="height:100%;width:100%;max-width:inherit"></textarea>
+</div>
+<div class="col-xs-6 col-md-6 col-lg-6 container">
+    <textarea id="result" style="height:100%;width:100%;max-width:inherit" readonly>
+    </textarea>
+</div>
+
+@section scripts{
+    <script>
+        var SearchTextList = [];
+        var SearchTextResult = [];
+        var isUpdating = false;
+
+        $('#caps').on('change keyup paste', function () {
+            var inputList = $(this).val().replace('\n', '').split('#');
+            SearchTextList = inputList;
+            if (!isUpdating) {
+                GetIgTagCounts();
+            }
+        });
+
+        IsHashTagValid = function (key) {
+            return (!!key.length || key[0] !== '#')
+        };
+
+        GetIgTagCounts = function () {
+            isUpdating = true;
+            SearchTextResult = [];
+            for (var k in SearchTextList) {
+                var key = SearchTextList[k];
+                if (!!key && IsHashTagValid(key)) {
+                    $.ajax({
+                        type: "GET",
+                        dataType: "jsonp",
+                        cache: false,
+                        url: "https://api.instagram.com/v1/tags/{tag-name}?access_token={access-token}"
+                                .replace("{tag-name}", key)
+                                .replace("{access-token}", '@Model.Code'),
+                        async: false,
+                        success: function (data) {
+                            if (data.meta.code === 200) {
+                                SearchTextResult[k] = data.data.media_count;
+                                Update();
+                            }
+                            else {
+                                // SearchTextResult[k] = data.meta.error_message;
+                                SearchTextResult[k] = '';
+                            }
+                        },
+                        error: function (data) {
+                            // SearchTextResult[k] = data;
+                            SearchTextResult[k] = '';
+                        }
+                    })
+                }
+                else {
+                    // SearchTextResult[k] = "Invalid Tag.";
+                    SearchTextResult[k] = '';
+                }
+            }
+            isUpdating = false;
+        };
+
+        Update = function () {
+            var printresult = []
+            for (var k in SearchTextResult) {
+                if (!!SearchTextList[k] && !!SearchTextResult[k]) {
+                    printresult.push(SearchTextList[k] + ' : ' + SearchTextResult[k]);
+                }
+            }
+
+            $('#result').val(printresult.join('\n'));
+        }
+
+    </script>
+}
+
