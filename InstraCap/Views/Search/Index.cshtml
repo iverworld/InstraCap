@@ -17,12 +17,29 @@
         var isUpdating = false;
 
         $('#caps').on('change keyup paste', function () {
-            var inputList = $(this).val().replace('\n', '').split('#');
+            var input = $(this).val();
+            var inputList = input
+                            .substring(Math.max(0, input.indexOf("#")), input.length - Math.max(0, input.indexOf("#")) + 2)
+                            .replace(/\n/g, '')
+                            .replace(/\ /g, '')
+                            .split('#');
             SearchTextList = inputList;
             if (!isUpdating) {
                 GetIgTagCounts();
             }
         });
+
+        AddCommas = function(nStr) {
+            nStr += '';
+            x = nStr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+            return x1 + x2;
+        }
 
         IsHashTagValid = function (key) {
             return (!!key.length || key[0] !== '#')
@@ -44,22 +61,19 @@
                         async: false,
                         success: function (data) {
                             if (data.meta.code === 200) {
-                                SearchTextResult[k] = data.data.media_count;
+                                SearchTextResult.push((data.data.media_count));
                                 Update();
                             }
                             else {
-                                // SearchTextResult[k] = data.meta.error_message;
                                 SearchTextResult[k] = '';
                             }
                         },
                         error: function (data) {
-                            // SearchTextResult[k] = data;
                             SearchTextResult[k] = '';
                         }
                     })
                 }
                 else {
-                    // SearchTextResult[k] = "Invalid Tag.";
                     SearchTextResult[k] = '';
                 }
             }
@@ -70,7 +84,7 @@
             var printresult = []
             for (var k in SearchTextResult) {
                 if (!!SearchTextList[k] && !!SearchTextResult[k]) {
-                    printresult.push(SearchTextList[k] + ' : ' + SearchTextResult[k]);
+                    printresult.push(SearchTextList[k] + ' : ' + AddCommas(SearchTextResult[k]) + " posts");
                 }
             }
 
