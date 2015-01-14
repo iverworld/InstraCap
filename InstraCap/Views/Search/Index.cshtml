@@ -12,9 +12,7 @@
 
 @section scripts{
     <script>
-        var SearchTextList = [];
-        var SearchTextResult = [];
-        var isUpdating = false;
+        var SearchTextResult = {};
 
         $('#caps').on('change keyup paste', function () {
             var input = $(this).val();
@@ -23,13 +21,16 @@
                             .replace(/\n/g, '')
                             .replace(/\ /g, '')
                             .split('#');
-            SearchTextList = inputList;
-            if (!isUpdating) {
-                GetIgTagCounts();
+            SearchTextResult = {};
+            for (var k in inputList) {
+                if (!!inputList[k]) {
+                    SearchTextResult[inputList[k]] = '';
+                }
             }
+            getIgTagCounts();
         });
 
-        AddCommas = function(nStr) {
+        addCommas = function(nStr) {
             nStr += '';
             x = nStr.split('.');
             x1 = x[0];
@@ -41,16 +42,13 @@
             return x1 + x2;
         }
 
-        IsHashTagValid = function (key) {
+        isHashTagValid = function (key) {
             return (!!key.length || key[0] !== '#')
         };
 
-        GetIgTagCounts = function () {
-            isUpdating = true;
-            SearchTextResult = [];
-            for (var k in SearchTextList) {
-                var key = SearchTextList[k];
-                if (!!key && IsHashTagValid(key)) {
+        getIgTagCounts = function () {
+            for (var key in SearchTextResult){
+                if (!!key && isHashTagValid(key)) {
                     $.ajax({
                         type: "GET",
                         dataType: "jsonp",
@@ -61,30 +59,33 @@
                         async: false,
                         success: function (data) {
                             if (data.meta.code === 200) {
-                                SearchTextResult.push((data.data.media_count));
-                                Update();
+                                // SearchTextResult.push(data.data.media_count);
+                                if (data.data.name in SearchTextResult) {
+                                    SearchTextResult[data.data.name] = data.data.media_count;
+                                    update();
+                                }
                             }
                             else {
-                                SearchTextResult[k] = '';
+                                // SearchTextResult[k] = '';
                             }
                         },
                         error: function (data) {
-                            SearchTextResult[k] = '';
+                            // SearchTextResult[k] = '';
                         }
                     })
                 }
                 else {
-                    SearchTextResult[k] = '';
+                    // SearchTextResult[k] = '';
                 }
             }
-            isUpdating = false;
         };
 
-        Update = function () {
-            var printresult = []
-            for (var k in SearchTextResult) {
-                if (!!SearchTextList[k] && !!SearchTextResult[k]) {
-                    printresult.push(SearchTextList[k] + ' : ' + AddCommas(SearchTextResult[k]) + " posts");
+        update = function () {
+            var printresult = [];
+            var copySearchTextResult = SearchTextResult;
+            for (var k in copySearchTextResult) {
+                if (!!SearchTextResult) {
+                    printresult.push(k + " : " + addCommas(copySearchTextResult[k]) + " posts");
                 }
             }
 
@@ -93,4 +94,5 @@
 
     </script>
 }
+
 
