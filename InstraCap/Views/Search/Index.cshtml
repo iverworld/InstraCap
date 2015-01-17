@@ -15,13 +15,14 @@
         var SearchTextResult = {};
 
         $('#caps').on('change keyup paste', function () {
-            var input = $(this).val();
+            var input = $('#caps').val();
             var inputList = input
-                            .substring(Math.max(0, input.indexOf("#")), input.length - Math.max(0, input.indexOf("#")) + 2)
+                            .substring(Math.max(0, input.indexOf("#")), input.length)
                             .replace(/\n/g, '')
                             .replace(/\ /g, '')
                             .split('#');
             SearchTextResult = {};
+            $('#result').val('');
             for (var k in inputList) {
                 if (!!inputList[k]) {
                     SearchTextResult[inputList[k]] = '';
@@ -62,7 +63,7 @@
                                 // SearchTextResult.push(data.data.media_count);
                                 if (data.data.name in SearchTextResult) {
                                     SearchTextResult[data.data.name] = data.data.media_count;
-                                    update();
+                                    updateUI();
                                 }
                             }
                             else {
@@ -80,16 +81,27 @@
             }
         };
 
+        updateUI = function () {
+            var printResult = [];
+            var sortResult = update();
+            sortResult.forEach(function (element, index, array) {
+                printResult.push(element[0] + " : " + addCommas(element[1]) + " posts");
+            });
+            $('#result').val(printResult.join('\n'));
+        }
+
         update = function () {
-            var printresult = [];
+            var printResult = [];
             var copySearchTextResult = SearchTextResult;
+            var sortResult = [];
             for (var k in copySearchTextResult) {
-                if (!!SearchTextResult) {
-                    printresult.push(k + " : " + addCommas(copySearchTextResult[k]) + " posts");
+                if (!!copySearchTextResult[k]) {
+                    sortResult.push([k, copySearchTextResult[k]]);
                 }
             }
 
-            $('#result').val(printresult.join('\n'));
+            sortResult.sort(function (a, b) { return b[1] - a[1] });
+            return (sortResult);
         }
 
     </script>
