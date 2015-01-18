@@ -2,12 +2,16 @@
     ViewBag.Title = "Search";
 }
 
-<div class="col-xs-6 col-md-6 col-lg-6 container">
-    <textarea id="caps" style="height:100%;width:100%;max-width:inherit"></textarea>
-</div>
-<div class="col-xs-6 col-md-6 col-lg-6 container">
-    <textarea id="result" style="height:100%;width:100%;max-width:inherit" readonly>
-    </textarea>
+<div class="row extend">
+    <div class="col-xs-5 col-md-5 col-lg-5 container">
+        <textarea id="caps" class="extend"></textarea>
+    </div>
+    <div class="col-xs-1 col-md-1 col-lg-1 container">
+        <button style="top:50vh;">Query</button>
+    </div>
+    <div class="col-xs-5 col-md-5 col-lg-5 container">
+        <textarea id="result" class="extend" readonly></textarea>
+    </div>
 </div>
 
 @section scripts{

@@ -26,3 +26,9 @@ textarea {
 .container {
     height: 90%;
 }
+
+.extend {
+    height:100%;
+    width:100%;
+    max-width:inherit;
+}
